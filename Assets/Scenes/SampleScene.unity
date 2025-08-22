@@ -1624,8 +1624,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb2fb2e251c4d9344bb5cfddeee789cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startPoint: {fileID: 30750791}
+  startPoint: {fileID: 1875781781}
   advancePoints:
+  - {fileID: 30750791}
   - {fileID: 1445622007}
   - {fileID: 1408834100}
   - {fileID: 942553639}
@@ -2094,6 +2095,8 @@ MonoBehaviour:
   cameraMover: {fileID: 330585548}
   holdPoint: {fileID: 335660926}
   pickupObject: {fileID: 206250193}
+  startingBattery: 100
+  drainRatePerSecond: 0.5
 --- !u!1 &335660925
 GameObject:
   m_ObjectHideFlags: 0
@@ -3953,6 +3956,7 @@ Transform:
   m_Children:
   - {fileID: 1445622007}
   - {fileID: 30750791}
+  - {fileID: 1875781781}
   - {fileID: 1408834100}
   - {fileID: 942553639}
   - {fileID: 519147589}
@@ -11522,6 +11526,59 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1826215600}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1875781780
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1875781781}
+  - component: {fileID: 1875781782}
+  m_Layer: 0
+  m_Name: GameObject (5)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1875781781
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1875781780}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -17.74}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 529490267}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &1875781782
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1875781780}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1909242834
 GameObject:
   m_ObjectHideFlags: 0
