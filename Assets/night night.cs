@@ -20,11 +20,11 @@ public class NightSystem : MonoBehaviour
         {
             case 1: return 3;
             case 2: return 4;
-            case 3: return 4;
-            case 4: return 5;
-            case 5: return 6;
-            case 6: return 7;
-            default: return 7; // If beyond night 6, keep it at 7
+            case 3: return 5;
+            case 4: return 6;
+            case 5: return 7;
+            case 6: return 8;
+            default: return 9; // If beyond night 6, keep it at 9
         }
     }
 
@@ -39,7 +39,7 @@ public class NightSystem : MonoBehaviour
             case 4: return 40f;
             case 5: return 45f;
             case 6: return 50f;
-            default: return 50f;
+            default: return 55f;
         }
     }
 
