@@ -131,6 +131,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: literally everything in my game
       objectReference: {fileID: 0}
+    - target: {fileID: 5702814634907976842, guid: 38fa3fac712cc94498af36fb1c3e0a22, type: 3}
+      propertyPath: shotgun
+      value: 
+      objectReference: {fileID: 4949857806307480082}
     - target: {fileID: 7932355023751099480, guid: 38fa3fac712cc94498af36fb1c3e0a22, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -176,6 +180,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 38fa3fac712cc94498af36fb1c3e0a22, type: 3}
+--- !u!1 &4949857806307480082 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8359470181654622465, guid: 38fa3fac712cc94498af36fb1c3e0a22, type: 3}
+  m_PrefabInstance: {fileID: 4949857806307480081}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
