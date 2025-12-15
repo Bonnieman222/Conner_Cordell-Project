@@ -2,18 +2,19 @@ using UnityEngine;
 
 public class NightSystem : MonoBehaviour
 {
-    public int currentNight = 1;  // Starts at Night 1
+    public int currentNight = 1;
     public int completedProcesses = 0;
 
-    public static NightSystem Instance;  // Singleton so ProcessController can reference it
+    public static NightSystem Instance;
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
     }
 
-    // How many times the process must be completed per night
     public int GetRequiredProcesses()
     {
         switch (currentNight)
@@ -24,11 +25,10 @@ public class NightSystem : MonoBehaviour
             case 4: return 6;
             case 5: return 7;
             case 6: return 8;
-            default: return 9; // If beyond night 6, keep it at 9
+            default: return 9;
         }
     }
 
-    // How long the process takes depending on the night
     public float GetProcessTime()
     {
         switch (currentNight)
@@ -43,17 +43,18 @@ public class NightSystem : MonoBehaviour
         }
     }
 
-    // Call when a process is completed successfully
     public void ProcessCompleted()
     {
         completedProcesses++;
-        Debug.Log($"Completed processes this night: {completedProcesses}/{GetRequiredProcesses()}");
 
         if (completedProcesses >= GetRequiredProcesses())
         {
-            Debug.Log($"Night {currentNight} completed!");
             currentNight++;
             completedProcesses = 0;
+
+            // Save progress
+            PlayerPrefs.SetInt("SavedNight", currentNight);
+            PlayerPrefs.Save();
         }
     }
 }

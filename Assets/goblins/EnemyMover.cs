@@ -20,28 +20,41 @@ public class EnemyMoverInstant : MonoBehaviour
     public float bResetDelay = 10f;
 
     [Header("Post-Reset Freeze")]
-    public float baseFreezeDuration = 3f; // Freeze after reset on Night 1
+    public float baseFreezeDuration = 3f;
 
-    // Internal state
-    private int aIndex = 0;
-    private int bIndex = 0;
-    private float aTimer = 0f;
-    private float bTimer = 0f;
-    private bool aFinal = false;
-    private bool bFinal = false;
-    private float bFlashlightOffTimer = 0f;
-    private float resetFreezeTimer = 0f;
+    [Header("Death Screen")]
+    public GameObject deathCanvas;
 
-    // Systems
+    public string monsterADeathMessage =
+        "Mr Fallador prefers a dark room, we aren't here to make him comfortable";
+
+    public string monsterBDeathMessage =
+        "The orphans worked in the dark, your eyes alone should be enough to keep them busy";
+
+    // Internal public fields
+    public int aIndex = 0;
+    public int bIndex = 0;
+    public float aTimer = 0f;
+    public float bTimer = 0f;
+    public bool aFinal = false;
+    public bool bFinal = false;
+    public float bFlashlightOffTimer = 0f;
+    public float resetFreezeTimer = 0f;
+
     private FlashlightController flashlight;
     private CameraMover camMover;
     private NightSystem nightSystemInstance;
+
+    private bool gameFrozen = false;
 
     void Start()
     {
         flashlight = FindObjectOfType<FlashlightController>();
         camMover = FindObjectOfType<CameraMover>();
         nightSystemInstance = NightSystem.Instance;
+
+        if (deathCanvas != null)
+            deathCanvas.SetActive(false);
 
         if (monsterA != null) monsterA.position = waypoints[0].position;
         if (monsterB != null) monsterB.position = waypoints[0].position;
@@ -51,46 +64,82 @@ public class EnemyMoverInstant : MonoBehaviour
     {
         if (waypoints.Length == 0) return;
 
-        // Update timers
+        CheckForDeath();
+
+        if (gameFrozen) return;
+
         aTimer += Time.deltaTime;
         bTimer += Time.deltaTime;
 
-        // Flashlight off timer for Monster B reset
-        if (flashlight == null || !flashlight.flashlight.enabled) bFlashlightOffTimer += Time.deltaTime;
-        else bFlashlightOffTimer = 0f;
+        if (flashlight == null || !flashlight.flashlight.enabled)
+            bFlashlightOffTimer += Time.deltaTime;
+        else
+            bFlashlightOffTimer = 0f;
 
-        // Reduce freeze timer
         if (resetFreezeTimer > 0f)
         {
             resetFreezeTimer -= Time.deltaTime;
-            return; // Skip movement while freeze active
+            return;
         }
 
-        // Handle monsters
         HandleMonsters();
+    }
+
+    void CheckForDeath()
+    {
+        if (waypoints.Length <= 5) return;
+
+        if (aIndex == 5)
+        {
+            TriggerDeath(monsterADeathMessage);
+        }
+        else if (bIndex == 5)
+        {
+            TriggerDeath(monsterBDeathMessage);
+        }
+    }
+
+    void TriggerDeath(string msg)
+    {
+        gameFrozen = true;
+        Time.timeScale = 0f;
+
+        MonsterDeathText.SetDeathMessage(msg);
+
+        if (deathCanvas != null)
+        {
+            deathCanvas.SetActive(true);
+
+            // Force the text to update immediately
+            MonsterDeathText textComp = deathCanvas.GetComponentInChildren<MonsterDeathText>();
+            if (textComp != null)
+            {
+                if (textComp.tmpText != null)
+                    textComp.tmpText.text = msg;
+                if (textComp.uiText != null)
+                    textComp.uiText.text = msg;
+            }
+        }
     }
 
     void HandleMonsters()
     {
-        // Determine movement time for each monster
         float moveTimeA = Mathf.Max(0.5f, baseMoveTimeA - (nightSystemInstance.currentNight - 1));
         float moveTimeB = Mathf.Max(0.5f, baseMoveTimeB - (nightSystemInstance.currentNight - 1));
 
         bool flashOn = flashlight != null && flashlight.flashlight.enabled;
-        if (flashOn && bIndex >= 1 && bIndex <= 4) moveTimeB /= flashlightSpeedMultiplier;
+        if (flashOn && bIndex >= 1 && bIndex <= 4)
+            moveTimeB /= flashlightSpeedMultiplier;
 
-        // Rarity scaling per night
         float chanceA = Mathf.Lerp(0.9f, 0.4f, (nightSystemInstance.currentNight - 1) / 5f);
         float chanceB = Mathf.Lerp(0.1f, 0.6f, (nightSystemInstance.currentNight - 1) / 5f);
 
-        // Mutual blocking: a monster cannot leave 0 if the other is at 1–4
         bool aBlocked = bIndex >= 1 && bIndex <= 4;
         bool bBlocked = aIndex >= 1 && aIndex <= 4;
 
-        // Randomized first mover at element 0, weighted by night
         if (aIndex == 0 && bIndex == 0)
         {
-            float aPriority = Mathf.Lerp(0.9f, 0.4f, (nightSystemInstance.currentNight - 1) / 5f); // A favoured early, B late
+            float aPriority = Mathf.Lerp(0.9f, 0.4f, (nightSystemInstance.currentNight - 1) / 5f);
             if (Random.value <= aPriority)
             {
                 TryMoveA(moveTimeA, chanceA, aBlocked);
@@ -104,12 +153,10 @@ public class EnemyMoverInstant : MonoBehaviour
         }
         else
         {
-            // Otherwise check movement independently with mutual blocking
             TryMoveA(moveTimeA, chanceA, aBlocked);
             TryMoveB(moveTimeB, chanceB, bBlocked);
         }
 
-        // Check resets
         TryResetMonsterA();
         TryResetMonsterB();
     }
@@ -134,16 +181,22 @@ public class EnemyMoverInstant : MonoBehaviour
 
     void MoveMonsterA()
     {
-        if (aIndex >= waypoints.Length - 1) { aFinal = true; return; }
-        aIndex++;
-        if (monsterA != null) monsterA.position = waypoints[aIndex].position;
+        if (aIndex < waypoints.Length - 1)
+        {
+            aIndex++;
+            if (monsterA != null)
+                monsterA.position = waypoints[aIndex].position;
+        }
     }
 
     void MoveMonsterB()
     {
-        if (bIndex >= waypoints.Length - 1) { bFinal = true; return; }
-        bIndex++;
-        if (monsterB != null) monsterB.position = waypoints[bIndex].position;
+        if (bIndex < waypoints.Length - 1)
+        {
+            bIndex++;
+            if (monsterB != null)
+                monsterB.position = waypoints[bIndex].position;
+        }
     }
 
     void TryResetMonsterA()
@@ -156,7 +209,6 @@ public class EnemyMoverInstant : MonoBehaviour
         if (monsterA != null) monsterA.position = waypoints[0].position;
         aTimer = 0f;
 
-        // Set post-reset freeze
         resetFreezeTimer = Mathf.Max(0.5f, baseFreezeDuration - (nightSystemInstance.currentNight - 1));
     }
 
@@ -172,13 +224,15 @@ public class EnemyMoverInstant : MonoBehaviour
         bTimer = 0f;
         bFlashlightOffTimer = 0f;
 
-        // Set post-reset freeze
         resetFreezeTimer = Mathf.Max(0.5f, baseFreezeDuration - (nightSystemInstance.currentNight - 1));
     }
 
     int GetCameraIndex(CameraMover cm)
     {
-        var field = typeof(CameraMover).GetField("currentIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var field = typeof(CameraMover).GetField(
+            "currentIndex",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
+        );
         return (int)field.GetValue(cm);
     }
 }
