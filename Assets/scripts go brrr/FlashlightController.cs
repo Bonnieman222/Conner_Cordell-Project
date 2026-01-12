@@ -1,0 +1,206 @@
+using UnityEngine;
+using System.Collections;
+
+public class FlashlightController : MonoBehaviour
+{
+    [Header("Flashlight Settings")]
+    public Light flashlight;           // Spotlight component
+    public Transform cameraTransform;  // Main camera transform
+
+    private bool isHeld = false;
+    private bool isOn = false;
+    private float battery = 100f;
+    private Vector3 holdOffset = new Vector3(-0.3f, -0.2f, -0.2f);
+    private Vector3 startPosition;
+    private Quaternion startRotation;
+
+    [Header("Shotgun Settings")]
+    public GameObject shotgun;         // Shotgun model
+    public AudioSource shotgunAudio;   // Sound to play when firing
+    private bool shotgunHeld = false;
+    private bool canFire = true;
+    private float shotgunCooldown = 15f;
+    private Vector3 shotgunHoldOffset = new Vector3(0.3f, -0.25f, 0.6f);
+    private Quaternion shotgunRotationOffset = Quaternion.Euler(0f, 180f, 0f);
+    private Vector3 shotgunStartPosition;
+    private Quaternion shotgunStartRotation;
+
+    private void Start()
+    {
+        if (flashlight != null)
+            flashlight.enabled = false; // Light starts off
+
+        ResetBattery();
+
+        startPosition = transform.position;
+        startRotation = transform.rotation;
+
+        if (shotgun != null)
+        {
+            shotgunStartPosition = shotgun.transform.position;
+            shotgunStartRotation = shotgun.transform.rotation;
+        }
+    }
+
+    private void Update()
+    {
+        HandleInput();
+        HandleBattery();
+
+        // Flashlight follow camera
+        if (isHeld && cameraTransform != null)
+        {
+            transform.position = cameraTransform.position +
+                                 cameraTransform.right * holdOffset.x +
+                                 cameraTransform.up * holdOffset.y +
+                                 cameraTransform.forward * holdOffset.z;
+
+            transform.rotation = Quaternion.LookRotation(cameraTransform.forward);
+        }
+
+        // Shotgun follow camera
+        if (shotgunHeld && cameraTransform != null)
+        {
+            shotgun.transform.position = cameraTransform.position +
+                                         cameraTransform.right * shotgunHoldOffset.x +
+                                         cameraTransform.up * shotgunHoldOffset.y +
+                                         cameraTransform.forward * shotgunHoldOffset.z;
+
+            shotgun.transform.rotation = Quaternion.LookRotation(cameraTransform.forward) * shotgunRotationOffset;
+        }
+    }
+
+    private void HandleInput()
+    {
+        // Flashlight pickup/drop (F)
+        if (Input.GetKeyDown(KeyCode.F) && IsAtCameraSlot0())
+        {
+            if (!isHeld && !shotgunHeld)
+                PickUpFlashlight();
+            else if (isHeld && !isOn)
+                PutDownFlashlight();
+        }
+
+        // Toggle flashlight (G)
+        if (isHeld && Input.GetKeyDown(KeyCode.G))
+        {
+            if (!isOn && battery > 0f)
+                TurnOn();
+            else
+                TurnOff();
+        }
+
+        // Shotgun pickup/drop (B)
+        if (Input.GetKeyDown(KeyCode.B) && IsAtCameraSlot0())
+        {
+            if (!shotgunHeld && !isHeld)
+                PickUpShotgun();
+            else if (shotgunHeld)
+                PutDownShotgun();
+        }
+
+        // Fire shotgun (N)
+        if (shotgunHeld && Input.GetKeyDown(KeyCode.N))
+            TryFireShotgun();
+    }
+
+    private void HandleBattery()
+    {
+        if (isOn && battery > 0f)
+        {
+            float drainRate = 0.3f + (NightSystem.Instance.currentNight - 1) * 0.1f;
+            battery -= drainRate * Time.deltaTime;
+
+            if (battery <= 0f)
+            {
+                battery = 0f;
+                TurnOff();
+            }
+        }
+    }
+
+    // --- Flashlight ---
+    private void PickUpFlashlight() => isHeld = true;
+
+    private void PutDownFlashlight()
+    {
+        isHeld = false;
+        TurnOff();
+        transform.position = startPosition;
+        transform.rotation = startRotation;
+    }
+
+    private void TurnOn()
+    {
+        if (flashlight != null && battery > 0f)
+        {
+            flashlight.enabled = true;
+            isOn = true;
+        }
+    }
+
+    private void TurnOff()
+    {
+        if (flashlight != null)
+        {
+            flashlight.enabled = false;
+            isOn = false;
+        }
+    }
+
+    public void ResetBattery()
+    {
+        battery = 100f;
+        TurnOff();
+    }
+
+    // --- Shotgun ---
+    private void PickUpShotgun()
+    {
+        if (shotgun != null)
+            shotgunHeld = true;
+    }
+
+    private void PutDownShotgun()
+    {
+        if (shotgun == null) return;
+
+        shotgunHeld = false;
+        shotgun.transform.position = shotgunStartPosition;
+        shotgun.transform.rotation = shotgunStartRotation;
+    }
+
+    private void TryFireShotgun()
+    {
+        if (!canFire || !shotgunHeld)
+            return;
+
+        canFire = false;
+
+        // Play audio
+        if (shotgunAudio != null)
+            shotgunAudio.Play();
+
+        // Start cooldown
+        StartCoroutine(ShotgunCooldown());
+    }
+
+    private IEnumerator ShotgunCooldown()
+    {
+        yield return new WaitForSeconds(shotgunCooldown);
+        canFire = true;
+    }
+
+    // --- Utility ---
+    private bool IsAtCameraSlot0()
+    {
+        CameraMover camMover = FindObjectOfType<CameraMover>();
+        return camMover != null && camMover.enabled && GetCameraIndex(camMover) == 0;
+    }
+
+    private int GetCameraIndex(CameraMover camMover)
+    {
+        var field = typeof(CameraMover).GetField("currentIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        return (int)field.GetValue(camMover);
+    }
+}
