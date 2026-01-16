@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class NightSaveSystem : MonoBehaviour
@@ -57,14 +57,5 @@ public class NightSaveSystem : MonoBehaviour
         }
 
         Debug.Log($"Loaded saved night: Night {savedNight}");
-    }
-
-    /// <summary>
-    /// Optional: Clear save data for testing or debug menu.
-    /// </summary>
-    public void ResetProgress()
-    {
-        PlayerPrefs.DeleteKey(NightSaveKey);
-        Debug.Log("Night progress reset.");
     }
 }

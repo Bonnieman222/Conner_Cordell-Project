@@ -13,6 +13,10 @@ public class SceneSwitchButton : MonoBehaviour
             return;
         }
 
+        // Tell the camera to skip intro when loading this scene
+        CameraMoveWithBlackStart.SetSkipIntroFlag();
+
+        // Load the scene
         SceneManager.LoadScene(sceneName);
     }
 }

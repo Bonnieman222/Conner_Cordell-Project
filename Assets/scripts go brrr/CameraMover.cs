@@ -23,6 +23,9 @@ public class CameraMover : MonoBehaviour
     private float lastMoveTime = 0f;
     private bool moveAudioPlayed = false;
 
+    // --- Minimal change for Monster 2 remap ---
+    [HideInInspector] public bool disableNumberKeys = false;
+
     private void Start()
     {
         // Start at element 0
@@ -41,6 +44,8 @@ public class CameraMover : MonoBehaviour
 
     private void HandleInput()
     {
+        if (disableNumberKeys) return; // SKIP normal key handling when Monster 2 is active
+
         if (Input.GetKeyDown(KeyCode.Alpha1)) TryMoveTo(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) TryMoveTo(1);
         if (Input.GetKeyDown(KeyCode.Alpha3)) TryMoveTo(2);
