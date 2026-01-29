@@ -1,34 +1,9 @@
 fileFormatVersion: 2
-guid: a27b91d181ab9044585b2c9d63c65fd9
+guid: 3c1bcd055cd675c41ab660ad7e453c78
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Wolf3D_Avatar
-    second: {fileID: 2100000, guid: 2e3225feccfd92246b9fb11229b2d130, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Wolf3D_Avatar_Transparent
-    second: {fileID: 2100000, guid: 225abbb50ca90d44192b696fb2b37101, type: 2}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: 0
-    second: {fileID: 2800000, guid: 08be5deafab4d0242bc5036f8d706838, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: 1
-    second: {fileID: 2800000, guid: f36692b4f62fd6843ba327dfcafa21bb, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: 2
-    second: {fileID: 2800000, guid: 902ccfd0df519e343bb7e076331adcbb, type: 3}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0

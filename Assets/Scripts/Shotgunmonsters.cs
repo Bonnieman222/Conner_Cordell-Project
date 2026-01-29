@@ -10,8 +10,7 @@ public class ShotgunMonsters : MonoBehaviour
 
     [Header("Death Screen")]
     public GameObject deathCanvas;
-    public string monster2DeathMessage =
-        "You felt it watching you long before it decided to act.";
+    public string monster2DeathMessage = "You felt it watching you long before it decided to act.";
 
     [Header("Monster 1 Setup")]
     public Transform spawnPoint1;
@@ -47,6 +46,27 @@ public class ShotgunMonsters : MonoBehaviour
 
     bool gameFrozen = false;
 
+    // --- New Input System ---
+    private PlayerInputActions inputActions;
+
+    private void Awake()
+    {
+        inputActions = new PlayerInputActions();
+
+        // Monster 2 shotgun input
+        inputActions.Player.FireShotgun.performed += ctx => CheckMonster2Shotgun();
+
+        // Camera slots
+        inputActions.Camera.Slot1.performed += ctx => cameraMover.TryMoveTo(4);
+        inputActions.Camera.Slot2.performed += ctx => cameraMover.TryMoveTo(3);
+        inputActions.Camera.Slot3.performed += ctx => cameraMover.TryMoveTo(0);
+        inputActions.Camera.Slot4.performed += ctx => cameraMover.TryMoveTo(1);
+        inputActions.Camera.Slot5.performed += ctx => cameraMover.TryMoveTo(2);
+    }
+
+    private void OnEnable() => inputActions.Enable();
+    private void OnDisable() => inputActions.Disable();
+
     void Start()
     {
         if (deathCanvas != null)
@@ -60,18 +80,11 @@ public class ShotgunMonsters : MonoBehaviour
     {
         if (gameFrozen) return;
 
-        if (monster1Active)
-            HandleMonster1();
-
+        if (monster1Active) HandleMonster1();
         if (monster2Active)
         {
-            CheckMonster2Shotgun();
-
-            if (monster2Active)
-            {
-                HandleMonster2KillTimer();
-                HandleMonster2CameraRemap();
-            }
+            HandleMonster2KillTimer();
+            HandleMonster2CameraRemap();
         }
     }
 
@@ -113,27 +126,14 @@ public class ShotgunMonsters : MonoBehaviour
     {
         if (!IsAtCameraSpot3()) return;
 
-        if (flashlightController.flashlight != null &&
-            flashlightController.flashlight.enabled)
+        if (flashlightController.flashlight != null && flashlightController.flashlight.enabled)
         {
             var field = typeof(FlashlightController)
                 .GetField("battery", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
             float battery = (float)field.GetValue(flashlightController);
             battery = Mathf.Max(0f, battery - Time.deltaTime);
             field.SetValue(flashlightController, battery);
         }
-
-        if (Input.GetKeyDown(KeyCode.N))
-            RemoveMonster1();
-    }
-
-    void RemoveMonster1()
-    {
-        monster1Active = false;
-        if (monster1Instance != null) Destroy(monster1Instance);
-        monster1Instance = null;
-        nextMonster1Check = Time.time + Random.Range(monster1MinRespawn, monster1MaxRespawn);
     }
     #endregion
 
@@ -193,25 +193,17 @@ public class ShotgunMonsters : MonoBehaviour
         return 999f;
     }
 
-    void HandleMonster2CameraRemap()
-    {
-        if (Input.GetKeyDown(KeyCode.Alpha1)) cameraMover.TryMoveTo(4);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) cameraMover.TryMoveTo(3);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) cameraMover.TryMoveTo(0);
-        if (Input.GetKeyDown(KeyCode.Alpha4)) cameraMover.TryMoveTo(1);
-        if (Input.GetKeyDown(KeyCode.Alpha5)) cameraMover.TryMoveTo(2);
-    }
+    void HandleMonster2CameraRemap() { /* nothing now, handled by InputSystem events */ }
 
     void CheckMonster2Shotgun()
     {
-        if (!Input.GetKeyDown(KeyCode.N)) return;
+        if (!monster2Active) return;
 
         int camIndex = (int)typeof(CameraMover)
             .GetField("currentIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
             .GetValue(cameraMover);
 
-        if (camIndex == 0)
-            RemoveMonster2();
+        if (camIndex == 0) RemoveMonster2();
     }
 
     void RemoveMonster2()

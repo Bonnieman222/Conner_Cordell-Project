@@ -5,9 +5,12 @@ public class NightSaveSystem : MonoBehaviour
 {
     private const string NightSaveKey = "SavedNight";
 
+    [Header("Debug / Inspector Tools")]
+    [Tooltip("Check this to delete the saved night progress")]
+    public bool deleteSave;
+
     private void Awake()
     {
-        // Keep this object when switching scenes
         DontDestroyOnLoad(gameObject);
     }
 
@@ -21,7 +24,16 @@ public class NightSaveSystem : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // This replaces Start() because Start can run before NightSystem exists
+    private void Update()
+    {
+        // Inspector button-style reset
+        if (deleteSave)
+        {
+            DeleteSave();
+            deleteSave = false; // reset toggle
+        }
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         LoadNightProgress();
@@ -35,6 +47,22 @@ public class NightSaveSystem : MonoBehaviour
         PlayerPrefs.SetInt(NightSaveKey, night);
         PlayerPrefs.Save();
         Debug.Log($"Night progress saved: Night {night}");
+    }
+
+    /// <summary>
+    /// Delete saved night progress.
+    /// </summary>
+    public void DeleteSave()
+    {
+        PlayerPrefs.DeleteKey(NightSaveKey);
+        PlayerPrefs.Save();
+        Debug.Log("Night save deleted.");
+
+        if (NightSystem.Instance != null)
+        {
+            NightSystem.Instance.currentNight = 1;
+            NightSystem.Instance.completedProcesses = 0;
+        }
     }
 
     /// <summary>

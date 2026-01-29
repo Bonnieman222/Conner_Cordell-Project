@@ -15,43 +15,35 @@ public class PauseManager : MonoBehaviour
 
     private bool isPaused = false;
     private bool isFreezeLock = false;
-
     private float nextAllowedPauseTime = 0f;
 
-    void Start()
+    private PlayerInputActions inputActions;
+
+    private void Awake()
+    {
+        inputActions = new PlayerInputActions();
+        inputActions.Player.Pause.performed += ctx => TogglePause();
+    }
+
+    private void OnEnable() => inputActions.Enable();
+    private void OnDisable() => inputActions.Disable();
+
+    private void Start()
     {
         SetCanvasVisible(false);
     }
 
-    void Update()
+    private void TogglePause()
     {
-        // Block pause if other UI is showing
-        if (blockWhenActive != null && blockWhenActive.alpha > 0.01f)
-            return;
+        if (Time.unscaledTime < nextAllowedPauseTime || isFreezeLock) return;
 
-        // Block pause if cooldown is active
-        if (Time.unscaledTime < nextAllowedPauseTime)
-            return;
-
-        // Block pause if freeze lock is happening
-        if (isFreezeLock)
-            return;
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (isPaused)
-                Resume();
-            else
-                Pause();
-        }
+        if (isPaused) Resume();
+        else Pause();
     }
 
     public void Pause()
     {
-        if (isFreezeLock) return;
-
         isPaused = true;
-
         Time.timeScale = 0f;
         SetCanvasVisible(true);
     }
@@ -59,26 +51,16 @@ public class PauseManager : MonoBehaviour
     public void Resume()
     {
         isPaused = false;
-
         SetCanvasVisible(false);
-
-        // Start freeze lock
         StartCoroutine(UnfreezeAfterDelay());
-
-        // Start cooldown
         nextAllowedPauseTime = Time.unscaledTime + pauseCooldown;
     }
 
     private IEnumerator UnfreezeAfterDelay()
     {
         isFreezeLock = true;
-
-        // stay frozen
         Time.timeScale = 0f;
-
         yield return new WaitForSecondsRealtime(freezeAfterUnpause);
-
-        // unfreeze
         Time.timeScale = 1f;
         isFreezeLock = false;
     }
@@ -86,7 +68,6 @@ public class PauseManager : MonoBehaviour
     private void SetCanvasVisible(bool visible)
     {
         if (pauseCanvas == null) return;
-
         pauseCanvas.alpha = visible ? 1f : 0f;
         pauseCanvas.interactable = visible;
         pauseCanvas.blocksRaycasts = visible;

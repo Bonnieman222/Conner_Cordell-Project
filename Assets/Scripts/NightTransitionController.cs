@@ -4,6 +4,7 @@ public class NightTransitionController : MonoBehaviour
 {
     public PauseMenuWithIntro pauseSystem;
     public NightDisplay nightDisplay;
+    public FlashlightController flashlightController; // ADD THIS
 
     private int lastNight = -1;
 
@@ -34,5 +35,9 @@ public class NightTransitionController : MonoBehaviour
 
         if (pauseSystem != null)
             pauseSystem.PlayIntro();
+
+        // RESET TOOLS EACH NIGHT
+        if (flashlightController != null)
+            flashlightController.ResetForNewNight();
     }
 }

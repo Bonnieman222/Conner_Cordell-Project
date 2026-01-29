@@ -48,6 +48,27 @@ public class EnemyMoverInstant : MonoBehaviour
 
     bool gameFrozen = false;
 
+    // --- New Input System ---
+    private PlayerInputActions inputActions;
+
+    private void Awake()
+    {
+        inputActions = new PlayerInputActions();
+
+        // Track flashlight toggle to reset bFlashlightOffTimer
+        inputActions.Player.ToggleFlashlight.performed += ctx =>
+        {
+            if (flashlight != null && flashlight.flashlight != null)
+            {
+                if (flashlight.flashlight.enabled)
+                    bFlashlightOffTimer = 0f;
+            }
+        };
+    }
+
+    private void OnEnable() => inputActions.Enable();
+    private void OnDisable() => inputActions.Disable();
+
     void Start()
     {
         flashlight = FindObjectOfType<FlashlightController>();
@@ -57,8 +78,8 @@ public class EnemyMoverInstant : MonoBehaviour
         if (deathCanvas != null)
             deathCanvas.SetActive(false);
 
-        if (monsterA != null) monsterA.position = waypoints[0].position;
-        if (monsterB != null) monsterB.position = waypoints[0].position;
+        if (monsterA != null && waypoints.Length > 0) monsterA.position = waypoints[0].position;
+        if (monsterB != null && waypoints.Length > 0) monsterB.position = waypoints[0].position;
     }
 
     void Update()
@@ -70,6 +91,7 @@ public class EnemyMoverInstant : MonoBehaviour
         aTimer += Time.deltaTime;
         bTimer += Time.deltaTime;
 
+        // Track flashlight off timer for monsterB
         if (flashlight == null || !flashlight.flashlight.enabled)
             bFlashlightOffTimer += Time.deltaTime;
         else
@@ -80,7 +102,7 @@ public class EnemyMoverInstant : MonoBehaviour
             bIndex = 0;
             bTimer = 0f;
             bFlashlightOffTimer = 0f;
-            if (monsterB != null)
+            if (monsterB != null && waypoints.Length > 0)
                 monsterB.position = waypoints[0].position;
         }
 
@@ -183,7 +205,7 @@ public class EnemyMoverInstant : MonoBehaviour
 
         aIndex = 0;
         aTimer = 0f;
-        if (monsterA != null)
+        if (monsterA != null && waypoints.Length > 0)
             monsterA.position = waypoints[0].position;
 
         resetFreezeTimer = Mathf.Max(0.5f,
@@ -200,7 +222,7 @@ public class EnemyMoverInstant : MonoBehaviour
         bIndex = 0;
         bTimer = 0f;
         bFlashlightOffTimer = 0f;
-        if (monsterB != null)
+        if (monsterB != null && waypoints.Length > 0)
             monsterB.position = waypoints[0].position;
 
         resetFreezeTimer = Mathf.Max(0.5f,
