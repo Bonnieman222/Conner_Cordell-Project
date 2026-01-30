@@ -31,22 +31,19 @@ public class SceneTracker : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // Automatically updates previous/current scenes on load
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Only update previous scene if this is NOT the first scene
+        // Only update previous scene if currentScene is not empty
         if (!string.IsNullOrEmpty(currentScene) && currentScene != scene.name)
         {
             previousScene = currentScene;
         }
 
-        // Update current scene
         currentScene = scene.name;
+        // Optional debug
+        Debug.Log($"Scene Loaded: {scene.name} | Previous Scene: {previousScene}");
     }
 
-    /// <summary>
-    /// Call this from a button to return to the previous scene
-    /// </summary>
     public void ReturnToPreviousScene()
     {
         if (string.IsNullOrEmpty(previousScene))
@@ -55,6 +52,13 @@ public class SceneTracker : MonoBehaviour
             return;
         }
 
+        // Load previous scene
         SceneManager.LoadScene(previousScene);
+    }
+
+    // Optional helper to manually set previous scene
+    public void SetPreviousScene(string sceneName)
+    {
+        previousScene = sceneName;
     }
 }

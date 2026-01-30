@@ -2,17 +2,21 @@ using UnityEngine;
 
 public class NightSystem : MonoBehaviour
 {
+    public static NightSystem Instance;
+
     public int currentNight = 1;
     public int completedProcesses = 0;
-
-    public static NightSystem Instance;
 
     private void Awake()
     {
         if (Instance == null)
+        {
             Instance = this;
+        }
         else
+        {
             Destroy(gameObject);
+        }
     }
 
     public int GetRequiredProcesses()
