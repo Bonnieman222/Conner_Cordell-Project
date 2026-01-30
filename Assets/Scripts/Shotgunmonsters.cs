@@ -46,17 +46,17 @@ public class ShotgunMonsters : MonoBehaviour
 
     bool gameFrozen = false;
 
-    // --- New Input System ---
+    // New Input System
     private PlayerInputActions inputActions;
 
     private void Awake()
     {
         inputActions = new PlayerInputActions();
 
-        // Monster 2 shotgun input
+        // Shotgun input
         inputActions.Player.FireShotgun.performed += ctx => CheckMonster2Shotgun();
 
-        // Camera slots
+        // Camera slots (only active when Monster 2 is alive)
         inputActions.Camera.Slot1.performed += ctx => cameraMover.TryMoveTo(4);
         inputActions.Camera.Slot2.performed += ctx => cameraMover.TryMoveTo(3);
         inputActions.Camera.Slot3.performed += ctx => cameraMover.TryMoveTo(0);
@@ -64,8 +64,16 @@ public class ShotgunMonsters : MonoBehaviour
         inputActions.Camera.Slot5.performed += ctx => cameraMover.TryMoveTo(2);
     }
 
-    private void OnEnable() => inputActions.Enable();
-    private void OnDisable() => inputActions.Disable();
+    private void OnEnable()
+    {
+        inputActions.Player.Enable();
+        inputActions.Camera.Disable();
+    }
+
+    private void OnDisable()
+    {
+        inputActions.Disable();
+    }
 
     void Start()
     {
@@ -81,11 +89,7 @@ public class ShotgunMonsters : MonoBehaviour
         if (gameFrozen) return;
 
         if (monster1Active) HandleMonster1();
-        if (monster2Active)
-        {
-            HandleMonster2KillTimer();
-            HandleMonster2CameraRemap();
-        }
+        if (monster2Active) HandleMonster2KillTimer();
     }
 
     #region Monster 1
@@ -130,6 +134,7 @@ public class ShotgunMonsters : MonoBehaviour
         {
             var field = typeof(FlashlightController)
                 .GetField("battery", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
             float battery = (float)field.GetValue(flashlightController);
             battery = Mathf.Max(0f, battery - Time.deltaTime);
             field.SetValue(flashlightController, battery);
@@ -148,6 +153,7 @@ public class ShotgunMonsters : MonoBehaviour
             {
                 lastNight = nightSystem.currentNight;
                 monster2Active = false;
+                inputActions.Camera.Disable();
             }
 
             if (nightSystem.currentNight >= 3 && !monster2Active && Time.time >= nextMonster2Check)
@@ -169,6 +175,8 @@ public class ShotgunMonsters : MonoBehaviour
         monster2Active = true;
         monster2SpawnTime = Time.time;
         monster2Instance = Instantiate(monsterPrefab2, spawnPoint2.position, spawnPoint2.rotation);
+
+        inputActions.Camera.Enable();
     }
 
     void HandleMonster2KillTimer()
@@ -193,8 +201,6 @@ public class ShotgunMonsters : MonoBehaviour
         return 999f;
     }
 
-    void HandleMonster2CameraRemap() { /* nothing now, handled by InputSystem events */ }
-
     void CheckMonster2Shotgun()
     {
         if (!monster2Active) return;
@@ -203,15 +209,21 @@ public class ShotgunMonsters : MonoBehaviour
             .GetField("currentIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
             .GetValue(cameraMover);
 
-        if (camIndex == 0) RemoveMonster2();
+        if (camIndex == 0)
+            RemoveMonster2();
     }
 
     void RemoveMonster2()
     {
         monster2Active = false;
-        if (monster2Instance != null) Destroy(monster2Instance);
+
+        if (monster2Instance != null)
+            Destroy(monster2Instance);
+
         monster2Instance = null;
         nextMonster2Check = Time.time + Random.Range(monster2MinRespawn, monster2MaxRespawn);
+
+        inputActions.Camera.Disable();
     }
     #endregion
 
