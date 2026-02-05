@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.InputSystem;
 
@@ -20,7 +20,7 @@ public class FlashlightController : MonoBehaviour
     public GameObject shotgun;
     public AudioSource shotgunAudio;
 
-    private bool shotgunHeld = false;
+    private bool shotgunHeld = false; // Keep private
     private bool canFire = true;
     private float shotgunCooldown = 15f;
 
@@ -66,7 +66,6 @@ public class FlashlightController : MonoBehaviour
 
     private void Update()
     {
-        HandleOldInput();
         HandleBattery();
 
         // Flashlight follows camera ONLY if held
@@ -91,14 +90,6 @@ public class FlashlightController : MonoBehaviour
             shotgun.transform.rotation =
                 Quaternion.LookRotation(cameraTransform.forward) * shotgunRotationOffset;
         }
-    }
-
-    private void HandleOldInput()
-    {
-        if (Input.GetKeyDown(KeyCode.F)) TryPickUpFlashlight();
-        if (Input.GetKeyDown(KeyCode.G)) TryToggleFlashlight();
-        if (Input.GetKeyDown(KeyCode.B)) TryPickUpShotgun();
-        if (Input.GetKeyDown(KeyCode.N)) TryFireShotgun();
     }
 
     private void HandleBattery()
@@ -178,6 +169,8 @@ public class FlashlightController : MonoBehaviour
     {
         if (!canFire || !shotgunHeld) return;
 
+        Debug.Log("SHOTGUN FIRED"); // debug message
+
         canFire = false;
         shotgunAudio?.Play();
         StartCoroutine(ShotgunCooldown());
@@ -192,14 +185,14 @@ public class FlashlightController : MonoBehaviour
     // -------- NIGHT RESET (FORCED PUT DOWN) --------
     public void ResetForNewNight()
     {
-        // Flashlight: force drop and reset
+        // Flashlight reset
         isHeld = false;
         isOn = false;
         flashlight.enabled = false;
         transform.position = startPosition;
         transform.rotation = startRotation;
 
-        // Shotgun: force drop and reset
+        // Shotgun reset
         shotgunHeld = false;
         canFire = true;
         if (shotgun != null)
@@ -208,10 +201,15 @@ public class FlashlightController : MonoBehaviour
             shotgun.transform.rotation = shotgunStartRotation;
         }
 
-        // Battery reset
         battery = 100f;
 
         Debug.Log("Flashlight & shotgun reset for new night.");
+    }
+
+    // ---------- PUBLIC GETTER FOR SHOTGUN ----------
+    public bool IsShotgunHeld()
+    {
+        return shotgunHeld;
     }
 
     private bool IsAtCameraSlot0()

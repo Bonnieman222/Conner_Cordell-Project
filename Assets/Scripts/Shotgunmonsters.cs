@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.InputSystem;
 
 public class ShotgunMonsters : MonoBehaviour
 {
@@ -56,7 +57,7 @@ public class ShotgunMonsters : MonoBehaviour
         // Shotgun input
         inputActions.Player.FireShotgun.performed += ctx => CheckMonster2Shotgun();
 
-        // Camera slots (only active when Monster 2 is alive)
+        // Camera slots (keep normal mapping)
         inputActions.Camera.Slot1.performed += ctx => cameraMover.TryMoveTo(4);
         inputActions.Camera.Slot2.performed += ctx => cameraMover.TryMoveTo(3);
         inputActions.Camera.Slot3.performed += ctx => cameraMover.TryMoveTo(0);
@@ -153,7 +154,6 @@ public class ShotgunMonsters : MonoBehaviour
             {
                 lastNight = nightSystem.currentNight;
                 monster2Active = false;
-                inputActions.Camera.Disable();
             }
 
             if (nightSystem.currentNight >= 3 && !monster2Active && Time.time >= nextMonster2Check)
@@ -175,8 +175,6 @@ public class ShotgunMonsters : MonoBehaviour
         monster2Active = true;
         monster2SpawnTime = Time.time;
         monster2Instance = Instantiate(monsterPrefab2, spawnPoint2.position, spawnPoint2.rotation);
-
-        inputActions.Camera.Enable();
     }
 
     void HandleMonster2KillTimer()
@@ -205,12 +203,11 @@ public class ShotgunMonsters : MonoBehaviour
     {
         if (!monster2Active) return;
 
-        int camIndex = (int)typeof(CameraMover)
-            .GetField("currentIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-            .GetValue(cameraMover);
-
-        if (camIndex == 0)
+        if (flashlightController != null && flashlightController.IsShotgunHeld())
+        {
             RemoveMonster2();
+            Debug.Log("Monster 2 destroyed by shotgun!");
+        }
     }
 
     void RemoveMonster2()
@@ -222,8 +219,6 @@ public class ShotgunMonsters : MonoBehaviour
 
         monster2Instance = null;
         nextMonster2Check = Time.time + Random.Range(monster2MinRespawn, monster2MaxRespawn);
-
-        inputActions.Camera.Disable();
     }
     #endregion
 
