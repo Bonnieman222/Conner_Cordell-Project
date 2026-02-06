@@ -20,7 +20,7 @@ public class FlashlightController : MonoBehaviour
     public GameObject shotgun;
     public AudioSource shotgunAudio;
 
-    private bool shotgunHeld = false; // Keep private
+    private bool shotgunHeld = false;
     private bool canFire = true;
     private float shotgunCooldown = 15f;
 
@@ -36,11 +36,11 @@ public class FlashlightController : MonoBehaviour
         inputActions = new PlayerInputActions();
 
         // Flashlight actions
-        inputActions.Player.PickUpFlashlight.performed += ctx => TryPickUpFlashlight();
-        inputActions.Player.ToggleFlashlight.performed += ctx => TryToggleFlashlight();
+        inputActions.Player.PickUpFlashlight.performed += ctx => ToggleFlashlightPickup();
+        inputActions.Player.ToggleFlashlight.performed += ctx => ToggleFlashlightLight();
 
         // Shotgun actions
-        inputActions.Player.PickUpShotgun.performed += ctx => TryPickUpShotgun();
+        inputActions.Player.PickUpShotgun.performed += ctx => ToggleShotgunPickup();
         inputActions.Player.FireShotgun.performed += ctx => TryFireShotgun();
     }
 
@@ -68,7 +68,7 @@ public class FlashlightController : MonoBehaviour
     {
         HandleBattery();
 
-        // Flashlight follows camera ONLY if held
+        // Flashlight follows camera if held
         if (isHeld && cameraTransform != null)
         {
             transform.position = cameraTransform.position
@@ -79,7 +79,7 @@ public class FlashlightController : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(cameraTransform.forward);
         }
 
-        // Shotgun follows camera ONLY if held
+        // Shotgun follows camera if held
         if (shotgunHeld && cameraTransform != null)
         {
             shotgun.transform.position = cameraTransform.position
@@ -108,19 +108,24 @@ public class FlashlightController : MonoBehaviour
     }
 
     // -------- Flashlight Methods --------
-    private void TryPickUpFlashlight()
+    private void ToggleFlashlightPickup()
     {
         if (!isHeld && !shotgunHeld && IsAtCameraSlot0())
+        {
             isHeld = true;
-        else if (isHeld && !isOn)
+        }
+        else if (isHeld)
+        {
             PutDownFlashlight();
+        }
     }
 
-    private void TryToggleFlashlight()
+    private void ToggleFlashlightLight()
     {
         if (!isHeld) return;
-        if (!isOn && battery > 0f) TurnOnFlashlight();
-        else TurnOffFlashlight();
+
+        isOn = !isOn;
+        flashlight.enabled = isOn;
     }
 
     private void PutDownFlashlight()
@@ -129,12 +134,6 @@ public class FlashlightController : MonoBehaviour
         TurnOffFlashlight();
         transform.position = startPosition;
         transform.rotation = startRotation;
-    }
-
-    private void TurnOnFlashlight()
-    {
-        flashlight.enabled = true;
-        isOn = true;
     }
 
     private void TurnOffFlashlight()
@@ -150,12 +149,16 @@ public class FlashlightController : MonoBehaviour
     }
 
     // -------- Shotgun Methods --------
-    private void TryPickUpShotgun()
+    private void ToggleShotgunPickup()
     {
         if (!shotgunHeld && !isHeld && IsAtCameraSlot0())
+        {
             shotgunHeld = true;
+        }
         else if (shotgunHeld)
+        {
             PutDownShotgun();
+        }
     }
 
     private void PutDownShotgun()
@@ -169,8 +172,7 @@ public class FlashlightController : MonoBehaviour
     {
         if (!canFire || !shotgunHeld) return;
 
-        Debug.Log("SHOTGUN FIRED"); // debug message
-
+        Debug.Log("SHOTGUN FIRED");
         canFire = false;
         shotgunAudio?.Play();
         StartCoroutine(ShotgunCooldown());
@@ -185,14 +187,8 @@ public class FlashlightController : MonoBehaviour
     // -------- NIGHT RESET (FORCED PUT DOWN) --------
     public void ResetForNewNight()
     {
-        // Flashlight reset
-        isHeld = false;
-        isOn = false;
-        flashlight.enabled = false;
-        transform.position = startPosition;
-        transform.rotation = startRotation;
+        PutDownFlashlight();
 
-        // Shotgun reset
         shotgunHeld = false;
         canFire = true;
         if (shotgun != null)
@@ -207,10 +203,7 @@ public class FlashlightController : MonoBehaviour
     }
 
     // ---------- PUBLIC GETTER FOR SHOTGUN ----------
-    public bool IsShotgunHeld()
-    {
-        return shotgunHeld;
-    }
+    public bool IsShotgunHeld() => shotgunHeld;
 
     private bool IsAtCameraSlot0()
     {

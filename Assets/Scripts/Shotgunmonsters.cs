@@ -43,6 +43,7 @@ public class ShotgunMonsters : MonoBehaviour
 
     float nextMonster1Check = 0f;
     float nextMonster2Check = 0f;
+    float monster1SpawnTime = 0f;
     float monster2SpawnTime = 0f;
 
     bool gameFrozen = false;
@@ -54,10 +55,10 @@ public class ShotgunMonsters : MonoBehaviour
     {
         inputActions = new PlayerInputActions();
 
-        // Shotgun input
-        inputActions.Player.FireShotgun.performed += ctx => CheckMonster2Shotgun();
+        // Shotgun input handled in callback
+        inputActions.Player.FireShotgun.performed += ctx => OnFireShotgun();
 
-        // Camera slots (keep normal mapping)
+        // Camera slots
         inputActions.Camera.Slot1.performed += ctx => cameraMover.TryMoveTo(4);
         inputActions.Camera.Slot2.performed += ctx => cameraMover.TryMoveTo(3);
         inputActions.Camera.Slot3.performed += ctx => cameraMover.TryMoveTo(0);
@@ -123,15 +124,16 @@ public class ShotgunMonsters : MonoBehaviour
         if (monsterPrefab1 == null || spawnPoint1 == null) return;
 
         monster1Active = true;
+        monster1SpawnTime = Time.time;
         monster1Instance = Instantiate(monsterPrefab1, spawnPoint1.position, spawnPoint1.rotation);
-        nextMonster1Check = Time.time + Random.Range(monster1MinRespawn, monster1MaxRespawn);
     }
 
     void HandleMonster1()
     {
-        if (!IsAtCameraSpot3()) return;
+        if (!monster1Active) return;
 
-        if (flashlightController.flashlight != null && flashlightController.flashlight.enabled)
+        // Flashlight drain only when looking at slot 4
+        if (IsAtCameraSpot4() && flashlightController.flashlight != null && flashlightController.flashlight.enabled)
         {
             var field = typeof(FlashlightController)
                 .GetField("battery", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -140,6 +142,31 @@ public class ShotgunMonsters : MonoBehaviour
             battery = Mathf.Max(0f, battery - Time.deltaTime);
             field.SetValue(flashlightController, battery);
         }
+    }
+
+    void OnFireShotgun()
+    {
+        // Monster 1 destruction only at slot 4
+        if (monster1Active && monster1Instance != null && IsAtCameraSpot4())
+        {
+            Destroy(monster1Instance);
+            monster1Instance = null;
+            monster1Active = false;
+            nextMonster1Check = Time.time + Random.Range(monster1MinRespawn, monster1MaxRespawn);
+            Debug.Log("Monster 1 destroyed by shotgun at slot 4!");
+        }
+
+        // Monster 2 destruction anywhere
+        CheckMonster2Shotgun();
+    }
+
+    bool IsAtCameraSpot4()
+    {
+        int index = (int)typeof(CameraMover)
+            .GetField("currentIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+            .GetValue(cameraMover);
+
+        return index == 4;
     }
     #endregion
 
@@ -234,13 +261,4 @@ public class ShotgunMonsters : MonoBehaviour
             deathCanvas.SetActive(true);
     }
     #endregion
-
-    bool IsAtCameraSpot3()
-    {
-        int index = (int)typeof(CameraMover)
-            .GetField("currentIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-            .GetValue(cameraMover);
-
-        return index == 3;
-    }
 }

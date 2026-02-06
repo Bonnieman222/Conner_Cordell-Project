@@ -119,6 +119,59 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &59909140
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 59909141}
+  - component: {fileID: 59909142}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &59909141
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 59909140}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.00006148101, y: -0.99907494, z: 0.0014290757, w: -0.04298172}
+  m_LocalPosition: {x: 30.45, y: 9.56, z: 12.19}
+  m_LocalScale: {x: 0.67296004, y: 0.6729601, z: 0.67296004}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1091605148}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &59909142
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 59909140}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &70404380 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1994920414142977375, guid: b0353cc18bd75bc458c23caac5af9410, type: 3}
@@ -228,7 +281,7 @@ Transform:
   m_GameObject: {fileID: 1016199875}
   serializedVersion: 2
   m_LocalRotation: {x: 0.00006148101, y: -0.99907494, z: 0.0014290757, w: -0.04298172}
-  m_LocalPosition: {x: 31.88, y: 10.267382, z: -4.3741484}
+  m_LocalPosition: {x: 31.88, y: 9.56, z: -4.3741503}
   m_LocalScale: {x: 0.67296004, y: 0.6729601, z: 0.67296004}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -290,6 +343,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1016199876}
+  - {fileID: 59909141}
   - {fileID: 2322842045785519371}
   m_Father: {fileID: 997673658}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -514,6 +568,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1091605148}
     m_Modifications:
     - target: {fileID: 2479992889996833043, guid: 670a569bbde10a44db7d481c7bfd6b61, type: 3}
+      propertyPath: devMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2479992889996833043, guid: 670a569bbde10a44db7d481c7bfd6b61, type: 3}
       propertyPath: animator
       value: 
       objectReference: {fileID: 577669786377471211}
@@ -521,6 +579,10 @@ PrefabInstance:
       propertyPath: roarAudio
       value: 
       objectReference: {fileID: 2322842045785519373}
+    - target: {fileID: 2479992889996833043, guid: 670a569bbde10a44db7d481c7bfd6b61, type: 3}
+      propertyPath: spawnPoint
+      value: 
+      objectReference: {fileID: 59909141}
     - target: {fileID: 2479992889996833043, guid: 670a569bbde10a44db7d481c7bfd6b61, type: 3}
       propertyPath: cameraMover
       value: 
@@ -661,6 +723,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -301.87
       objectReference: {fileID: 0}
+    - target: {fileID: 301578828215725419, guid: b0353cc18bd75bc458c23caac5af9410, type: 3}
+      propertyPath: m_Resource
+      value: 
+      objectReference: {fileID: 8300000, guid: e0337a13cec912e429de75c451a354aa, type: 3}
     - target: {fileID: 385935356563891943, guid: b0353cc18bd75bc458c23caac5af9410, type: 3}
       propertyPath: m_Colors.m_SelectedColor.b
       value: 0.5176471
@@ -802,12 +868,20 @@ PrefabInstance:
       value: -301.87
       objectReference: {fileID: 0}
     - target: {fileID: 1371703807894511139, guid: b0353cc18bd75bc458c23caac5af9410, type: 3}
+      propertyPath: monster1MaxInitialDelay
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1371703807894511139, guid: b0353cc18bd75bc458c23caac5af9410, type: 3}
+      propertyPath: monster1MinInitialDelay
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1371703807894511139, guid: b0353cc18bd75bc458c23caac5af9410, type: 3}
       propertyPath: monster2MaxInitialDelay
-      value: 999
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 1371703807894511139, guid: b0353cc18bd75bc458c23caac5af9410, type: 3}
       propertyPath: monster2MinInitialDelay
-      value: 999
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 1418351505937850517, guid: b0353cc18bd75bc458c23caac5af9410, type: 3}
       propertyPath: m_IsActive

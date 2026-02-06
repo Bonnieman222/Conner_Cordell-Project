@@ -1,5 +1,6 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
+using System.Reflection;
 
 public class ChargingMonster : MonoBehaviour
 {
@@ -9,14 +10,17 @@ public class ChargingMonster : MonoBehaviour
     public Animator animator;
     public AudioSource roarAudio;
 
+    [Header("Spawn & Target")]
+    public Transform spawnPoint;     // Where the monster spawns
+    public Transform chargeTarget;   // Where the monster charges to
+
     [Header("Movement")]
-    public Transform chargeTarget;
     public float chargeSpeed = 8f;
     public float roarDuration = 2.5f;
-    public float chargeStopDistance = 0.1f;
+    public float killDistance = 0.4f;
 
     [Header("Spawning")]
-    public float baseSpawnDelay = 90f;   // Night 5 baseline
+    public float baseSpawnDelay = 90f;
     public float minSpawnDelay = 25f;
 
     [Header("Death")]
@@ -24,15 +28,47 @@ public class ChargingMonster : MonoBehaviour
     public string deathMessage = "You never saw it coming.";
 
     [Header("Monster Control")]
-    public MonoBehaviour[] monstersToDisable; // All except flashlight drainer
+    public MonoBehaviour[] monstersToDisable;
 
-    bool isCharging = false;
-    bool gameFrozen = false;
-    bool activeInstance = false;
+    [Header("Safe Camera Slots")]
+    public int[] safeSlots = { 3, 4 };
+
+    [Header("DEV TOOLS")]
+    public bool devMode = false;
+    public int devNightOverride = 5;
+    public KeyCode devSpawnKey = KeyCode.F6;
+
+    bool isCharging;
+    bool activeInstance;
+    bool canKill;
+    bool gameFrozen;
+
+    Vector3 lockedChargeTarget;
+    FieldInfo cameraIndexField;
+
+    void Awake()
+    {
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
+
+        if (animator != null)
+            animator.applyRootMotion = false;
+
+        // Reflection for CameraMover private field
+        cameraIndexField = typeof(CameraMover).GetField(
+            "currentIndex",
+            BindingFlags.NonPublic | BindingFlags.Instance
+        );
+
+        if (cameraIndexField == null)
+            Debug.LogError("ChargingMonster: Could not find CameraMover.currentIndex");
+    }
 
     void Start()
     {
-        if (nightSystem.currentNight < 5)
+        int night = devMode ? devNightOverride : nightSystem.currentNight;
+
+        if (night < 5)
         {
             Destroy(gameObject);
             return;
@@ -41,13 +77,29 @@ public class ChargingMonster : MonoBehaviour
         StartCoroutine(SpawnLoop());
     }
 
+    void Update()
+    {
+        if (devMode && Input.GetKeyDown(devSpawnKey))
+            SpawnMonster();
+
+        if (gameFrozen || !isCharging)
+            return;
+
+        Vector3 dir = (lockedChargeTarget - transform.position).normalized;
+        transform.position += dir * chargeSpeed * Time.deltaTime;
+        transform.rotation = Quaternion.LookRotation(dir);
+
+        CheckForKill();
+    }
+
     IEnumerator SpawnLoop()
     {
         while (true)
         {
             if (!activeInstance)
             {
-                float nightFactor = Mathf.Clamp01((nightSystem.currentNight - 5) / 4f);
+                int night = devMode ? devNightOverride : nightSystem.currentNight;
+                float nightFactor = Mathf.Clamp01((night - 5) / 4f);
 
                 float spawnChance = Mathf.Lerp(0.25f, 0.75f, nightFactor);
                 float delay = Mathf.Lerp(baseSpawnDelay, minSpawnDelay, nightFactor);
@@ -58,87 +110,84 @@ public class ChargingMonster : MonoBehaviour
                     SpawnMonster();
             }
 
-            yield return null;
+            yield return new WaitForSeconds(1f);
         }
     }
 
     void SpawnMonster()
     {
+        if (activeInstance || spawnPoint == null || chargeTarget == null)
+            return;
+
         activeInstance = true;
         isCharging = false;
+        canKill = false;
+        gameFrozen = false;
 
-        ForceCameraSlot(2);
+        // Spawn away from the camera/player
+        transform.position = spawnPoint.position;
+        transform.rotation = Quaternion.LookRotation(
+            (chargeTarget.position - spawnPoint.position).normalized
+        );
 
-        transform.position = cameraMover.transform.position;
-        transform.rotation = cameraMover.transform.rotation;
+        // Play roar animation and sound
+        animator?.SetTrigger("Roar");
+        roarAudio?.Play();
 
         StartCoroutine(RoarThenCharge());
     }
 
     IEnumerator RoarThenCharge()
     {
-        if (animator != null)
-            animator.SetTrigger("Roar");
-
-        if (roarAudio != null)
-            roarAudio.Play();
-
         yield return new WaitForSeconds(roarDuration);
-
         BeginCharge();
     }
 
     void BeginCharge()
     {
+        // Lock target so monster doesn't chase moving camera
+        lockedChargeTarget = chargeTarget.position;
         isCharging = true;
 
-        if (animator != null)
-            animator.SetTrigger("Charge");
+        animator?.SetTrigger("Charge");
 
         foreach (var m in monstersToDisable)
-        {
-            if (m != null)
-                m.enabled = false;
-        }
+            if (m) m.enabled = false;
+
+        StartCoroutine(EnableKillAfterDelay(0.35f));
     }
 
-    void Update()
+    IEnumerator EnableKillAfterDelay(float delay)
     {
-        if (gameFrozen || !isCharging || chargeTarget == null)
-            return;
-
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            chargeTarget.position,
-            chargeSpeed * Time.deltaTime
-        );
-
-        CheckForKill();
-
-        if (Vector3.Distance(transform.position, chargeTarget.position) <= chargeStopDistance)
-            EndCharge();
-    }
-
-    void EndCharge()
-    {
-        isCharging = false;
-        activeInstance = false;
-
-        foreach (var m in monstersToDisable)
-        {
-            if (m != null)
-                m.enabled = true;
-        }
-
-        gameObject.SetActive(false);
+        yield return new WaitForSeconds(delay);
+        canKill = true;
     }
 
     void CheckForKill()
     {
-        int camIndex = GetCameraIndex();
+        if (!canKill)
+            return;
 
-        if (camIndex == 1 || camIndex == 2 || camIndex == 5)
+        int camSlot = GetCameraIndex();
+
+        // If player is in a safe camera slot
+        foreach (int safe in safeSlots)
+        {
+            if (camSlot == safe)
+            {
+                // Monster reached target but cannot kill → despawn
+                if (Vector3.Distance(transform.position, lockedChargeTarget) <= killDistance)
+                    DespawnMonster();
+                return;
+            }
+        }
+
+        // Kill player if reached target
+        if (Vector3.Distance(transform.position, lockedChargeTarget) <= killDistance)
+        {
             TriggerDeath();
+            DespawnMonster(); // clean up monster after kill
+        }
     }
 
     void TriggerDeath()
@@ -147,26 +196,27 @@ public class ChargingMonster : MonoBehaviour
         Time.timeScale = 0f;
 
         MonsterDeathText.SetDeathMessage(deathMessage);
-
-        if (deathCanvas != null)
-            deathCanvas.SetActive(true);
+        if (deathCanvas) deathCanvas.SetActive(true);
     }
 
-    void ForceCameraSlot(int slot)
+    void DespawnMonster()
     {
-        typeof(CameraMover)
-            .GetField("currentIndex",
-                System.Reflection.BindingFlags.NonPublic |
-                System.Reflection.BindingFlags.Instance)
-            .SetValue(cameraMover, slot);
+        isCharging = false;
+        activeInstance = false;
+        canKill = false;
+
+        foreach (var m in monstersToDisable)
+            if (m) m.enabled = true;
+
+        // Move out of scene
+        transform.position = Vector3.down * 500f;
+        transform.rotation = Quaternion.identity;
     }
 
     int GetCameraIndex()
     {
-        return (int)typeof(CameraMover)
-            .GetField("currentIndex",
-                System.Reflection.BindingFlags.NonPublic |
-                System.Reflection.BindingFlags.Instance)
-            .GetValue(cameraMover);
+        return cameraIndexField != null
+            ? (int)cameraIndexField.GetValue(cameraMover)
+            : -1;
     }
 }
