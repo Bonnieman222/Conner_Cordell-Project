@@ -119,6 +119,108 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &14238230 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3125568393780138057, guid: 65c9e25a4c9b601489fd625cb66d1ff0, type: 3}
+  m_PrefabInstance: {fileID: 1707841459}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &14238236
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 14238230}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: b3628495d8ea6b340a1a75789b5f599a, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 0.171
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &119029510
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1505,7 +1607,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3590215bf78598e41b0d304b301f0842, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ControllerMenuNavigation
-  buttons:
+  menuElements:
   - {fileID: 948770326}
   - {fileID: 1236703851}
   inputActions: {fileID: -944628639613478452, guid: 1e498eba1f6a49c4184e5310982f9946, type: 3}
@@ -1633,7 +1735,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3125568393780138057, guid: 65c9e25a4c9b601489fd625cb66d1ff0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 14238236}
   m_SourcePrefab: {fileID: 100100000, guid: 65c9e25a4c9b601489fd625cb66d1ff0, type: 3}
 --- !u!1 &1746181099
 GameObject:
@@ -1646,6 +1751,7 @@ GameObject:
   - component: {fileID: 1746181101}
   - component: {fileID: 1746181100}
   - component: {fileID: 1746181102}
+  - component: {fileID: 1746181103}
   m_Layer: 0
   m_Name: SaveManager
   m_TagString: Untagged
@@ -1693,6 +1799,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9395afc82530fe343ba90535dc616e22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneTracker
+--- !u!114 &1746181103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1746181099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 777897ba87f5b9a4aa71754925d0a1b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Night7CompletionLoader
+  sceneToLoad: Ending
 --- !u!1001 &1863087497
 PrefabInstance:
   m_ObjectHideFlags: 0

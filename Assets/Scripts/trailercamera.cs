@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class CameraMoveWithBlackStart : MonoBehaviour
@@ -23,68 +22,29 @@ public class CameraMoveWithBlackStart : MonoBehaviour
     private bool hasStopped;
     private Camera cam;
 
-    // Static flag set by the SceneSwitchButton to skip intro
-    private static bool skipIntro = false;
-
     private void Awake()
     {
         cam = GetComponent<Camera>();
 
-        // Always apply fog settings
-        RenderSettings.fog = true;
-        RenderSettings.fogMode = FogMode.Exponential;
-        RenderSettings.fogColor = fogColor;
-        RenderSettings.fogDensity = fogDensity;
-    }
+        // 🔒 UI MUST start disabled
+        if (uiCanvas != null)
+            uiCanvas.gameObject.SetActive(false);
 
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
+        ApplyFogSettings();
     }
 
     private void Start()
     {
-        if (!skipIntro)
-        {
-            // Normal intro
-            StartCoroutine(InitializeAfterSceneLoad());
-        }
-        else
-        {
-            // Skip intro immediately
-            SkipToEnd();
-        }
-
-        skipIntro = false; // Reset flag for future scene loads
+        StartCoroutine(SceneEntryFlow());
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (skipIntro)
-        {
-            SkipToEnd();
-            skipIntro = false;
-        }
-    }
-
-    public static void SetSkipIntroFlag()
-    {
-        skipIntro = true;
-    }
-
-    private IEnumerator InitializeAfterSceneLoad()
+    private IEnumerator SceneEntryFlow()
     {
         movementStarted = false;
         hasStopped = false;
 
-        // Hide UI
-        if (uiCanvas != null)
-            uiCanvas.gameObject.SetActive(false);
+        // Wait for scene to fully initialize (audio loads need this)
+        yield return new WaitForEndOfFrame();
 
         // Black screen
         cam.clearFlags = CameraClearFlags.SolidColor;
@@ -92,15 +52,14 @@ public class CameraMoveWithBlackStart : MonoBehaviour
 
         yield return new WaitForSeconds(blackDuration);
 
-        // Find target
-        target = GameObject.FindGameObjectWithTag("CameraTag")?.transform;
+        target = FindCameraTarget();
         if (target == null)
-        {
-            Debug.LogError("CameraMoveWithBlackStart: No object with tag 'CameraTag' found!");
             yield break;
-        }
 
+        cam.clearFlags = CameraClearFlags.Skybox;
         cam.backgroundColor = fogColor;
+
+        ApplyFogSettings();
         movementStarted = true;
     }
 
@@ -113,45 +72,43 @@ public class CameraMoveWithBlackStart : MonoBehaviour
 
         if (distance > stopDistance)
         {
-            Vector3 direction = (target.position - transform.position).normalized;
-            transform.position += direction * moveSpeed * Time.deltaTime;
+            transform.position +=
+                (target.position - transform.position).normalized
+                * moveSpeed * Time.deltaTime;
+
             transform.LookAt(target);
         }
         else
         {
-            hasStopped = true;
-
-            // Show UI
-            if (uiCanvas != null)
-                uiCanvas.gameObject.SetActive(true);
+            FinishMovement();
         }
     }
 
-    private void SkipToEnd()
+    private void FinishMovement()
     {
-        // Find target
-        target = GameObject.FindGameObjectWithTag("CameraTag")?.transform;
-        if (target == null)
-        {
-            Debug.LogError("CameraMoveWithBlackStart: No object with tag 'CameraTag' found!");
-            return;
-        }
+        hasStopped = true;
 
-        // Optional: end position object
-        GameObject endPosObj = GameObject.Find("CameraEndPosition");
-        Vector3 endPos = (endPosObj != null) ? endPosObj.transform.position : target.position;
-
-        // Snap camera
-        transform.position = endPos;
-        transform.LookAt(target);
-
-        // Show UI immediately
         if (uiCanvas != null)
             uiCanvas.gameObject.SetActive(true);
+    }
 
-        // Mark as finished
-        movementStarted = true;
-        hasStopped = true;
-        cam.backgroundColor = fogColor;
+    private Transform FindCameraTarget()
+    {
+        GameObject obj = GameObject.FindGameObjectWithTag("CameraTag");
+        if (obj == null)
+        {
+            Debug.LogError("CameraMoveWithBlackStart: No object with tag 'CameraTag' found!");
+            return null;
+        }
+
+        return obj.transform;
+    }
+
+    private void ApplyFogSettings()
+    {
+        RenderSettings.fog = true;
+        RenderSettings.fogMode = FogMode.Exponential;
+        RenderSettings.fogColor = fogColor;
+        RenderSettings.fogDensity = fogDensity;
     }
 }

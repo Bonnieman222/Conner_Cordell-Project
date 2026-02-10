@@ -350,7 +350,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3590215bf78598e41b0d304b301f0842, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ControllerMenuNavigation
-  buttons:
+  menuElements:
+  - {fileID: 790409271}
   - {fileID: 1925628305}
   inputActions: {fileID: -944628639613478452, guid: 1e498eba1f6a49c4184e5310982f9946, type: 3}
 --- !u!4 &327955693

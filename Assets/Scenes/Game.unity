@@ -397,6 +397,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9395afc82530fe343ba90535dc616e22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneTracker
+--- !u!114 &1669863402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1669863397}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 777897ba87f5b9a4aa71754925d0a1b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Night7CompletionLoader
+  sceneToLoad: Ending
 --- !u!1 &1985396838 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7005758669160364128, guid: 670a569bbde10a44db7d481c7bfd6b61, type: 3}
@@ -446,7 +459,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3590215bf78598e41b0d304b301f0842, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ControllerMenuNavigation
-  buttons:
+  menuElements:
   - {fileID: 213138495}
   - {fileID: 819960266}
   - {fileID: 997260296}
@@ -1131,6 +1144,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7313128325291762495, guid: b0353cc18bd75bc458c23caac5af9410, type: 3}
+      propertyPath: deleteSave
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7401703501552043960, guid: b0353cc18bd75bc458c23caac5af9410, type: 3}
       propertyPath: m_LocalScale.x
       value: 39.757126
@@ -1259,6 +1276,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2194644224460480822, guid: b0353cc18bd75bc458c23caac5af9410, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1669863400}
+    - targetCorrespondingSourceObject: {fileID: 2194644224460480822, guid: b0353cc18bd75bc458c23caac5af9410, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1669863402}
   m_SourcePrefab: {fileID: 100100000, guid: b0353cc18bd75bc458c23caac5af9410, type: 3}
 --- !u!1001 &8755630305932251123
 PrefabInstance:

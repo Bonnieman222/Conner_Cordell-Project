@@ -44,8 +44,15 @@ public class FlashlightController : MonoBehaviour
         inputActions.Player.FireShotgun.performed += ctx => TryFireShotgun();
     }
 
-    private void OnEnable() => inputActions.Player.Enable();
-    private void OnDisable() => inputActions.Player.Disable();
+    private void OnEnable()
+    {
+        inputActions.Player.Enable();
+    }
+
+    private void OnDisable()
+    {
+        inputActions.Player.Disable();
+    }
 
     private void Start()
     {
@@ -71,10 +78,11 @@ public class FlashlightController : MonoBehaviour
         // Flashlight follows camera if held
         if (isHeld && cameraTransform != null)
         {
-            transform.position = cameraTransform.position
-                + cameraTransform.right * holdOffset.x
-                + cameraTransform.up * holdOffset.y
-                + cameraTransform.forward * holdOffset.z;
+            transform.position =
+                cameraTransform.position +
+                cameraTransform.right * holdOffset.x +
+                cameraTransform.up * holdOffset.y +
+                cameraTransform.forward * holdOffset.z;
 
             transform.rotation = Quaternion.LookRotation(cameraTransform.forward);
         }
@@ -82,10 +90,11 @@ public class FlashlightController : MonoBehaviour
         // Shotgun follows camera if held
         if (shotgunHeld && cameraTransform != null)
         {
-            shotgun.transform.position = cameraTransform.position
-                + cameraTransform.right * shotgunHoldOffset.x
-                + cameraTransform.up * shotgunHoldOffset.y
-                + cameraTransform.forward * shotgunHoldOffset.z;
+            shotgun.transform.position =
+                cameraTransform.position +
+                cameraTransform.right * shotgunHoldOffset.x +
+                cameraTransform.up * shotgunHoldOffset.y +
+                cameraTransform.forward * shotgunHoldOffset.z;
 
             shotgun.transform.rotation =
                 Quaternion.LookRotation(cameraTransform.forward) * shotgunRotationOffset;
@@ -108,6 +117,7 @@ public class FlashlightController : MonoBehaviour
     }
 
     // -------- Flashlight Methods --------
+
     private void ToggleFlashlightPickup()
     {
         if (!isHeld && !shotgunHeld && IsAtCameraSlot0())
@@ -122,7 +132,8 @@ public class FlashlightController : MonoBehaviour
 
     private void ToggleFlashlightLight()
     {
-        if (!isHeld) return;
+        if (!isHeld)
+            return;
 
         isOn = !isOn;
         flashlight.enabled = isOn;
@@ -149,6 +160,7 @@ public class FlashlightController : MonoBehaviour
     }
 
     // -------- Shotgun Methods --------
+
     private void ToggleShotgunPickup()
     {
         if (!shotgunHeld && !isHeld && IsAtCameraSlot0())
@@ -170,7 +182,8 @@ public class FlashlightController : MonoBehaviour
 
     private void TryFireShotgun()
     {
-        if (!canFire || !shotgunHeld) return;
+        if (!canFire || !shotgunHeld)
+            return;
 
         Debug.Log("SHOTGUN FIRED");
         canFire = false;
@@ -184,13 +197,14 @@ public class FlashlightController : MonoBehaviour
         canFire = true;
     }
 
-    // -------- NIGHT RESET (FORCED PUT DOWN) --------
+    // -------- NIGHT RESET --------
+
     public void ResetForNewNight()
     {
         PutDownFlashlight();
-
         shotgunHeld = false;
         canFire = true;
+
         if (shotgun != null)
         {
             shotgun.transform.position = shotgunStartPosition;
@@ -198,12 +212,15 @@ public class FlashlightController : MonoBehaviour
         }
 
         battery = 100f;
-
         Debug.Log("Flashlight & shotgun reset for new night.");
     }
 
-    // ---------- PUBLIC GETTER FOR SHOTGUN ----------
-    public bool IsShotgunHeld() => shotgunHeld;
+    // -------- PUBLIC GETTER --------
+
+    public bool IsShotgunHeld()
+    {
+        return shotgunHeld;
+    }
 
     private bool IsAtCameraSlot0()
     {
@@ -215,8 +232,10 @@ public class FlashlightController : MonoBehaviour
     {
         var field = typeof(CameraMover).GetField(
             "currentIndex",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
+            System.Reflection.BindingFlags.NonPublic |
+            System.Reflection.BindingFlags.Instance
         );
+
         return (int)field.GetValue(cam);
     }
 }
