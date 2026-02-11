@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class ControllerMenuNavigationWithSliders : MonoBehaviour
 {
     [Header("Menu Elements (Buttons & Sliders)")]
-    public Selectable[] menuElements; // Can be Buttons or Sliders
+    public Selectable[] menuElements;
 
     [Header("Input")]
     public InputActionAsset inputActions;
@@ -22,11 +22,24 @@ public class ControllerMenuNavigationWithSliders : MonoBehaviour
         get
         {
             List<Selectable> active = new List<Selectable>();
+
             foreach (var elem in menuElements)
             {
-                if (elem.gameObject.activeInHierarchy && elem.interactable)
-                    active.Add(elem);
+                if (elem == null)
+                    continue;
+
+                if (!elem.gameObject.activeInHierarchy)
+                    continue;
+
+                if (!elem.interactable)
+                    continue;
+
+                if (!IsElementVisible(elem))
+                    continue;
+
+                active.Add(elem);
             }
+
             return active;
         }
     }
@@ -53,10 +66,14 @@ public class ControllerMenuNavigationWithSliders : MonoBehaviour
 
     void Update()
     {
-        var move = moveAction.ReadValue<Vector2>();
         var activeElements = ActiveElements;
 
-        if (activeElements.Count == 0) return;
+        if (activeElements.Count == 0)
+            return;
+
+        currentIndex = Mathf.Clamp(currentIndex, 0, activeElements.Count - 1);
+
+        Vector2 move = moveAction.ReadValue<Vector2>();
 
         // Vertical navigation
         if (!stickInUse)
@@ -70,22 +87,19 @@ public class ControllerMenuNavigationWithSliders : MonoBehaviour
                 ChangeSelection(1, activeElements);
             }
         }
+
         stickInUse = Mathf.Abs(move.y) > 0.5f;
 
-        // Interact with element
-        var current = activeElements[currentIndex];
+        Selectable current = activeElements[currentIndex];
 
         if (current is Button button)
         {
             if (submitAction.WasPressedThisFrame())
-            {
                 button.onClick.Invoke();
-            }
         }
         else if (current is Slider slider)
         {
-            // Adjust slider with horizontal input
-            float step = 0.01f; // Slider adjustment speed
+            float step = 1f * Time.unscaledDeltaTime;
             slider.value += move.x * step;
         }
     }
@@ -109,8 +123,32 @@ public class ControllerMenuNavigationWithSliders : MonoBehaviour
 
     void HighlightElement(List<Selectable> activeElements)
     {
-        if (activeElements.Count == 0) return;
+        if (activeElements.Count == 0)
+            return;
+
         currentIndex = Mathf.Clamp(currentIndex, 0, activeElements.Count - 1);
         activeElements[currentIndex].Select();
+    }
+
+    // ✅ Proper ScrollRect visibility check
+    bool IsElementVisible(Selectable element)
+    {
+        ScrollRect scrollRect = element.GetComponentInParent<ScrollRect>();
+
+        // If not inside a ScrollRect, just allow it
+        if (scrollRect == null)
+            return true;
+
+        RectTransform viewport = scrollRect.viewport;
+        RectTransform elementRect = element.GetComponent<RectTransform>();
+
+        if (viewport == null || elementRect == null)
+            return true;
+
+        Bounds elementBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(viewport, elementRect);
+
+        return elementBounds.size.y > 0 &&
+               elementBounds.min.y < viewport.rect.height &&
+               elementBounds.max.y > 0;
     }
 }

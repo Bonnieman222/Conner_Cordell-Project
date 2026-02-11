@@ -237,7 +237,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ControllerMenuNavigation
   menuElements:
   - {fileID: 1367509182}
-  inputActions: {fileID: 0}
+  inputActions: {fileID: -944628639613478452, guid: 1e498eba1f6a49c4184e5310982f9946, type: 3}
 --- !u!1001 &300486830
 PrefabInstance:
   m_ObjectHideFlags: 0
