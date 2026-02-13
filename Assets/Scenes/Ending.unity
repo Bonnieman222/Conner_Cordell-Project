@@ -1041,7 +1041,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -922}
+  m_AnchoredPosition: {x: 0, y: -387}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1367509182
@@ -1150,7 +1150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8588a9a84d396c4fb9ce21483c87671, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneSwitchButton
-  sceneName: Menu
+  sceneName: Credits
 --- !u!1 &1938663513 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7490188249646909212, guid: c686fa89b345a4543830d2f5f9368f8d, type: 3}

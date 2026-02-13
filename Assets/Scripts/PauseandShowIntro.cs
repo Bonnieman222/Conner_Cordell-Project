@@ -11,7 +11,7 @@ public class PauseMenuWithIntro : MonoBehaviour
     public CanvasGroup introCanvas;
     public float showTime = 5f;
 
-    private bool isPaused = false;
+    public bool isPaused = false;
     private bool allowPause = true;
 
     // ------------------------------------------------------------

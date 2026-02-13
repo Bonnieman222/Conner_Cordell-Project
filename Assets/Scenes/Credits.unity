@@ -249,8 +249,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StarWarsScroll
   scrollSpeed: 140
-  resetPositionY: -600
-  endPositionY: 2600
+  startY: -600
+  endY: 2400
+  sceneToLoad: Menu
+  delayAfterFinish: 5
 --- !u!114 &1279499965
 MonoBehaviour:
   m_ObjectHideFlags: 0

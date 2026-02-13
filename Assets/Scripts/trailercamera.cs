@@ -1,15 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CameraMoveWithBlackStart : MonoBehaviour
+public class CameraMoveWithBlackStart_Fixed : MonoBehaviour
 {
-    [Header("Movement")]
+    [Header("Movement Settings")]
     public float moveSpeed = 5f;
     public float stopDistance = 0.1f;
 
     [Header("Fog Settings")]
     public Color fogColor = Color.gray;
-    public float fogDensity = 0.02f;
+    [Range(0.01f, 0.2f)]
+    public float fogDensity = 0.05f; // Increased slightly for visibility in builds
 
     [Header("UI Settings")]
     public Canvas uiCanvas;
@@ -18,19 +19,24 @@ public class CameraMoveWithBlackStart : MonoBehaviour
     public float blackDuration = 5f;
 
     private Transform target;
-    private bool movementStarted;
-    private bool hasStopped;
+    private bool movementStarted = false;
+    private bool hasStopped = false;
     private Camera cam;
 
     private void Awake()
     {
         cam = GetComponent<Camera>();
 
-        // 🔒 UI MUST start disabled
+        // 🔒 UI starts disabled
         if (uiCanvas != null)
             uiCanvas.gameObject.SetActive(false);
 
-        ApplyFogSettings();
+        // Initially disable fog for black screen
+        RenderSettings.fog = false;
+
+        // Black screen first
+        cam.clearFlags = CameraClearFlags.SolidColor;
+        cam.backgroundColor = Color.black;
     }
 
     private void Start()
@@ -43,23 +49,20 @@ public class CameraMoveWithBlackStart : MonoBehaviour
         movementStarted = false;
         hasStopped = false;
 
-        // Wait for scene to fully initialize (audio loads need this)
+        // Wait a frame for scene initialization (audio, lighting, etc.)
         yield return new WaitForEndOfFrame();
 
-        // Black screen
-        cam.clearFlags = CameraClearFlags.SolidColor;
-        cam.backgroundColor = Color.black;
-
+        // Hold black screen for specified duration
         yield return new WaitForSeconds(blackDuration);
 
+        // Find the target with tag "CameraTag"
         target = FindCameraTarget();
         if (target == null)
             yield break;
 
-        cam.clearFlags = CameraClearFlags.Skybox;
-        cam.backgroundColor = fogColor;
-
+        // Apply fog and background
         ApplyFogSettings();
+
         movementStarted = true;
     }
 
@@ -72,6 +75,7 @@ public class CameraMoveWithBlackStart : MonoBehaviour
 
         if (distance > stopDistance)
         {
+            // Move toward target smoothly
             transform.position +=
                 (target.position - transform.position).normalized
                 * moveSpeed * Time.deltaTime;
@@ -106,9 +110,17 @@ public class CameraMoveWithBlackStart : MonoBehaviour
 
     private void ApplyFogSettings()
     {
+        // Ensure fog is enabled for both editor and build
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.Exponential;
         RenderSettings.fogColor = fogColor;
         RenderSettings.fogDensity = fogDensity;
+
+        // Set camera background to solid color to make fog visible
+        cam.clearFlags = CameraClearFlags.SolidColor;
+        cam.backgroundColor = fogColor;
+
+        // Optional: Log for debugging builds
+        Debug.Log($"Fog Applied: Color={fogColor}, Density={fogDensity}");
     }
 }

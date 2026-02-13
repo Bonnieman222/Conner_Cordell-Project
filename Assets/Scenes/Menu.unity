@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 93254e233b89675439710b6913049994, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -738,7 +738,7 @@ RectTransform:
   m_GameObject: {fileID: 948770323}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3.9812036, y: 3.9812036, z: 3.9812036}
+  m_LocalScale: {x: 3.0659647, y: 3.0659647, z: 3.0659647}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1414708889}
@@ -746,7 +746,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -625, y: 57.377}
+  m_AnchoredPosition: {x: -625.41, y: 39.244}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &948770325
@@ -1093,7 +1093,7 @@ RectTransform:
   m_GameObject: {fileID: 1236703848}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3.9812036, y: 3.9812036, z: 3.9812036}
+  m_LocalScale: {x: 3.0659647, y: 3.0659647, z: 3.0659647}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1087090666}
@@ -1101,7 +1101,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -625.52997, y: -100.38}
+  m_AnchoredPosition: {x: -625.82, y: -82.247}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1236703850
